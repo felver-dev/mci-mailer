@@ -1,0 +1,15 @@
+# Environment
+.env
+*.env
+
+# Build output
+mci-mailer
+mci-mailer.exe
+/bin/
+
+# Go workspace
+vendor/
+
+# OS
+.DS_Store
+Thumbs.db
