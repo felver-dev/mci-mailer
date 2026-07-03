@@ -30,3 +30,17 @@ type EmailLogRepository interface {
 	MarkSent(ctx context.Context, id uuid.UUID, attempts int) error
 	FindAll(ctx context.Context, filter dto.LogFilter) ([]domain.EmailLog, int, error)
 }
+
+type UserRepository interface {
+	Create(ctx context.Context, user *domain.User) error
+	FindByEmail(ctx context.Context, email string) (*domain.User, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	FindAll(ctx context.Context) ([]domain.User, error)
+	Count(ctx context.Context) (int, error)
+	UpdateLastLogin(ctx context.Context, id uuid.UUID) error
+}
+
+type StatsRepository interface {
+	GetOverview(ctx context.Context) (*dto.StatsOverview, error)
+	GetPerApp(ctx context.Context) ([]dto.AppStats, error)
+}

@@ -10,13 +10,15 @@ import (
 )
 
 type ApiKey struct {
-	ID          uuid.UUID
-	Name        string
-	KeyHash     string
-	Scopes      []string
-	IsActive    bool
-	CreatedAt   time.Time
-	LastUsedAt  *time.Time
+	ID                uuid.UUID
+	Name              string
+	KeyHash           string
+	Scopes            []string
+	IsActive          bool
+	CreatedAt         time.Time
+	LastUsedAt        *time.Time
+	CreatedByUserID   *uuid.UUID
+	CreatedByUserName *string
 }
 
 const (

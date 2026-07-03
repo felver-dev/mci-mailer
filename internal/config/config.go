@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -12,11 +13,13 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	SMTP     SMTPConfig
+	Auth     AuthConfig
 }
 
 type ServerConfig struct {
-	Port string
-	Env  string
+	Port         string
+	Env          string
+	CORSOrigins  []string
 }
 
 type DatabaseConfig struct {
@@ -33,6 +36,11 @@ type SMTPConfig struct {
 	UseTLS   bool
 }
 
+type AuthConfig struct {
+	JWTSecret   string
+	MasterToken string
+}
+
 func Load() *Config {
 	if err := godotenv.Load(); err != nil {
 		log.Println("[config] no .env file, using environment variables")
@@ -40,10 +48,14 @@ func Load() *Config {
 
 	smtpPort, _ := strconv.Atoi(getEnv("SMTP_PORT", "587"))
 
+	rawOrigins := getEnv("CORS_ORIGINS", "http://localhost:5173")
+	origins := strings.Split(rawOrigins, ",")
+
 	return &Config{
 		Server: ServerConfig{
-			Port: getEnv("PORT", "2525"),
-			Env:  getEnv("APP_ENV", "production"),
+			Port:        getEnv("PORT", "2525"),
+			Env:         getEnv("APP_ENV", "production"),
+			CORSOrigins: origins,
 		},
 		Database: DatabaseConfig{
 			URL: mustGetEnv("DATABASE_URL"),
@@ -56,6 +68,10 @@ func Load() *Config {
 			From:     getEnv("SMTP_FROM", getEnv("SMTP_USER", "")),
 			FromName: getEnv("SMTP_FROM_NAME", "MCI CARE CI"),
 			UseTLS:   getEnv("SMTP_USE_TLS", "true") == "true",
+		},
+		Auth: AuthConfig{
+			JWTSecret:   mustGetEnv("JWT_SECRET"),
+			MasterToken: mustGetEnv("MASTER_TOKEN"),
 		},
 	}
 }
