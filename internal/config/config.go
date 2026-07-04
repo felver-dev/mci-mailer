@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -23,7 +24,13 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
-	URL string
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Name     string
+	SSLMode  string
+	URL      string
 }
 
 type SMTPConfig struct {
@@ -57,9 +64,7 @@ func Load() *Config {
 			Env:         getEnv("APP_ENV", "production"),
 			CORSOrigins: origins,
 		},
-		Database: DatabaseConfig{
-			URL: mustGetEnv("DATABASE_URL"),
-		},
+		Database: buildDatabaseConfig(),
 		SMTP: SMTPConfig{
 			Host:     mustGetEnv("SMTP_HOST"),
 			Port:     smtpPort,
@@ -73,6 +78,30 @@ func Load() *Config {
 			JWTSecret:   mustGetEnv("JWT_SECRET"),
 			MasterToken: mustGetEnv("MASTER_TOKEN"),
 		},
+	}
+}
+
+func buildDatabaseConfig() DatabaseConfig {
+	host     := getEnv("DB_HOST", "localhost")
+	port     := getEnv("DB_PORT", "5432")
+	user     := mustGetEnv("DB_USER")
+	password := mustGetEnv("DB_PASSWORD")
+	name     := mustGetEnv("DB_NAME")
+	sslMode  := getEnv("DB_SSLMODE", "disable")
+
+	url := getEnv("DATABASE_URL", fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		user, password, host, port, name, sslMode,
+	))
+
+	return DatabaseConfig{
+		Host:     host,
+		Port:     port,
+		User:     user,
+		Password: password,
+		Name:     name,
+		SSLMode:  sslMode,
+		URL:      url,
 	}
 }
 
